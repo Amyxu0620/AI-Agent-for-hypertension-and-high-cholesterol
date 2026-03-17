@@ -1,1 +1,1 @@
-# AI-Agent-for-hypertention-and-high-cholesterol
+# AI-Agent-for-hypertension-and-high-cholesterol
