@@ -1,1 +1,9 @@
-
+{
+  "name": "",
+  "age": 0,
+  "conditions": [],
+  "medications": [],
+  "appointments": [],
+  "diet_preferences": [],
+  "caregiver_info": []
+}
