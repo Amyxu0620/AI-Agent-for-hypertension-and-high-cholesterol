@@ -3,3 +3,11 @@ langchain
 langgraph
 anthropic
 reportlab
+
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+python-dotenv
+boto3
+matplotlib
