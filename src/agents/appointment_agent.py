@@ -22,25 +22,25 @@ def days_until(date_str):
     delta = (appt_date - date.today()).days
     return delta
 
-# ── Call Claude API ────────────────────────────────────────────────────────────
+# ── Call Claude via AWS Bedrock ────────────────────────────────────────────────
 def ask_claude(prompt):
     client = boto3.client(
         service_name="bedrock-runtime",
-        region_name="us-east-1"  # change if Amy's region differs
+        region_name=os.getenv("AWS_DEFAULT_REGION", "us-east-1")
     )
 
-    body = boto_json.dumps({
+    body = json.dumps({
         "anthropic_version": "bedrock-2023-05-31",
         "max_tokens": 1000,
         "messages": [{"role": "user", "content": prompt}]
     })
 
     response = client.invoke_model(
-        modelId="anthropic.claude-3-5-sonnet-20241022-v2:0",
+        modelId="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
         body=body
     )
 
-    result = boto_json.loads(response["body"].read())
+    result = json.loads(response["body"].read())
     return result["content"][0]["text"]
 
 # ── Generate pre-visit questions using Claude ──────────────────────────────────
@@ -109,21 +109,18 @@ def generate_pdf(patient, summary_text):
 
     content = []
 
-    # Header
     content.append(Paragraph("Pre-Consultation Clinical Summary", title_style))
     content.append(Paragraph(f"Generated: {date.today().strftime('%d %B %Y')} | "
                               f"Patient: {patient['patient']} | "
                               f"Conditions: {', '.join(patient['conditions'])}",
                               subtitle_style))
 
-    # Divider table
     content.append(Table([['']], colWidths=[6.5*inch],
                           style=TableStyle([
                               ('LINEABOVE', (0,0), (-1,0), 1, colors.HexColor('#1a365d'))
                           ])))
     content.append(Spacer(1, 12))
 
-    # Summary content — split by newline for formatting
     for line in summary_text.split('\n'):
         if line.strip():
             if line.strip().startswith(('1.', '2.', '3.', '4.')):
@@ -156,7 +153,6 @@ def main():
     st.markdown(f"**Conditions:** {', '.join(patient['conditions'])}")
     st.divider()
 
-    # ── Appointment countdown ──────────────────────────────────────────────────
     st.subheader("📅 Upcoming Appointments")
     if patient["appointments"]:
         for appt in patient["appointments"]:
@@ -176,7 +172,6 @@ def main():
 
     st.divider()
 
-    # ── Pre-visit prep ─────────────────────────────────────────────────────────
     st.subheader("📋 Pre-Visit Preparation")
     if st.button("Generate Pre-Visit Questions"):
         with st.spinner("Preparing your visit summary..."):
@@ -188,7 +183,6 @@ def main():
 
     st.divider()
 
-    # ── Clinician summary ──────────────────────────────────────────────────────
     st.subheader("🩺 Clinician Summary Report")
     if st.button("Generate Clinician Summary + Download PDF"):
         with st.spinner("Generating clinical summary..."):
