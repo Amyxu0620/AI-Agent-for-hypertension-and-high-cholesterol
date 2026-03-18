@@ -66,6 +66,35 @@ def chat_with_bedrock(user_message: str) -> str:
         ]
     }
 
+    def handle_user_query(patient: dict, query: str) -> str:
+    patient_name = patient.get("patient") or patient.get("name", "Patient")
+    conditions = ", ".join(patient.get("conditions", [])) or "None"
+    symptoms = ", ".join(patient.get("symptoms_today", [])) or "None"
+    meals = ", ".join(patient.get("meals_today", [])) or "None"
+    steps = patient.get("steps_today", 0)
+
+    daily_log = patient.get("daily_log", {})
+    sleep_hours = daily_log.get("sleep_hours", 0)
+    emotional_state = daily_log.get("emotional_state", "unknown")
+    nutrition_level = daily_log.get("nutrition_level", "unknown")
+
+    full_message = f"""
+    Patient context:
+    - Name: {patient_name}
+    - Conditions: {conditions}
+    - Symptoms today: {symptoms}
+    - Meals today: {meals}
+    - Steps today: {steps}
+    - Sleep hours: {sleep_hours}
+    - Emotional state: {emotional_state}
+    - Nutrition level: {nutrition_level}
+    
+    User question:
+    {query}
+    """.strip()
+
+    return chat_with_bedrock(full_message)
+
     try:
        
         response = bedrock_runtime.invoke_model(
