@@ -75,7 +75,7 @@ def ask_claude(system_prompt: str, user_message: str) -> str:
     region   = os.getenv("AWS_REGION")
     model_id = os.getenv("BEDROCK_MODEL_ID")
     if model_id and not model_id.startswith("us."):
-        model_id = "us." + model_id  # Bedrock requires inference profile prefix for on-demand access
+        model_id = "us." + model_id  
 
     if not region:
         return "Error: AWS_REGION not found in .env"
