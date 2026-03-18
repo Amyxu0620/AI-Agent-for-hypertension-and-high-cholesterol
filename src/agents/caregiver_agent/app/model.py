@@ -3,7 +3,6 @@ from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Foreig
 from sqlalchemy.orm import relationship
 from app.db import Base
 
-
 class Patient(Base):
     __tablename__ = "patients"
 
@@ -19,7 +18,6 @@ class Patient(Base):
     visits = relationship("VisitLog", back_populates="patient", cascade="all, delete-orphan")
     alerts = relationship("AlertLog", back_populates="patient", cascade="all, delete-orphan")
 
-
 class DailyLog(Base):
     __tablename__ = "daily_logs"
 
@@ -34,7 +32,6 @@ class DailyLog(Base):
     steps = Column(Integer, default=0)
     emotional_state = Column(String, default="")
 
-    # only included because you explicitly wanted it when patient is not self-dependent
     needs_bath = Column(Boolean, default=False)
     needs_haircut = Column(Boolean, default=False)
     other_care_needs = Column(String, default="")
@@ -43,20 +40,18 @@ class DailyLog(Base):
 
     patient = relationship("Patient", back_populates="daily_logs")
 
-
 class HealthMetric(Base):
     __tablename__ = "health_metrics"
 
     id = Column(Integer, primary_key=True, index=True)
     patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False)
 
-    metric_type = Column(String, nullable=False)   # systolic_bp, diastolic_bp, resting_hr, sleep_hours, steps, etc.
+    metric_type = Column(String, nullable=False)   
     value = Column(Float, nullable=False)
     unit = Column(String, nullable=False)
     recorded_at = Column(DateTime, default=datetime.utcnow)
 
     patient = relationship("Patient", back_populates="metrics")
-
 
 class VisitLog(Base):
     __tablename__ = "visit_logs"
@@ -70,15 +65,14 @@ class VisitLog(Base):
 
     patient = relationship("Patient", back_populates="visits")
 
-
 class AlertLog(Base):
     __tablename__ = "alert_logs"
 
     id = Column(Integer, primary_key=True, index=True)
     patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False)
 
-    severity = Column(String, nullable=False)   # info / caution / urgent
-    alert_type = Column(String, nullable=False) # risk / location / family / summary
+    severity = Column(String, nullable=False)  
+    alert_type = Column(String, nullable=False) 
     message = Column(Text, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
