@@ -1,9 +1,79 @@
+
 {
-  "name": "",
-  "age": 0,
-  "conditions": [],
-  "medications": [],
-  "appointments": [],
+  "patient_id": 1,
+  "patient": "Mr Tan",
+  "name": "Mr Tan",
+  "age": 68,
+
+  "conditions": ["hypertension", "hyperlipidaemia"],
+
+  "medications": [
+    {
+      "name": "Amlodipine",
+      "dose": "5mg",
+      "time": "08:00",
+      "taken": false,
+      "condition": "hypertension",
+      "frequency": "daily",
+      "reminder": true
+    },
+    {
+      "name": "Simvastatin",
+      "dose": "20mg",
+      "time": "21:00",
+      "taken": true,
+      "condition": "hyperlipidaemia",
+      "frequency": "daily",
+      "reminder": true
+    }
+  ],
+
+  "appointments": [
+    {
+      "type": "Cardiology review",
+      "doctor": "Dr Lim",
+      "date": "2026-03-25"
+    }
+  ],
+
+  "symptoms_today": [],
+  "meals_today": [],
+  "steps_today": 0,
+
   "diet_preferences": [],
-  "caregiver_info": []
+  "lifestyle_tips": [],
+  "alerts": [],
+
+  "caregiver_info": {
+    "caregiver_email": "caregiver@example.com",
+    "family_emails": ["family1@example.com", "family2@example.com"],
+    "self_dependent": true
+  },
+
+  "daily_log": {
+    "sleep_hours": 0,
+    "calories_intake": 0,
+    "nutrition_level": "",
+    "exercise_intensity": "",
+    "calories_burnt": 0,
+    "emotional_state": "",
+    "needs_bath": false,
+    "needs_haircut": false,
+    "other_care_needs": ""
+  },
+
+  "health_metrics": [
+    {
+      "metric_type": "systolic_bp",
+      "value": 0,
+      "unit": "mmHg",
+      "recorded_at": ""
+    },
+    {
+      "metric_type": "diastolic_bp",
+      "value": 0,
+      "unit": "mmHg",
+      "recorded_at": ""
+    }
+  ]
 }
