@@ -38,8 +38,8 @@ class VisitLogCreate(BaseModel):
 
 class LocationEventCreate(BaseModel):
     patient_id: int
-    geofence_type: str   # hospital / clinic / danger_zone
-    event_type: str      # ENTER / EXIT
+    geofence_type: str   
+    event_type: str      
 
 
 class MessageResponse(BaseModel):
