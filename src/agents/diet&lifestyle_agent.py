@@ -1,4 +1,4 @@
-import anthropic
+import boto3
 import json
 import os
 import re
@@ -39,23 +39,45 @@ def save_patient(patient):
 
 
 # ─────────────────────────────────────────────────────────────
-# Claude helper
+# Bedrock Claude helper
 # ─────────────────────────────────────────────────────────────
 def ask_claude(prompt):
-    api_key = os.getenv("ANTHROPIC_API_KEY")
-    if not api_key:
-        return "Error: ANTHROPIC_API_KEY not found."
+    region = os.getenv("AWS_REGION")
+    model_id = os.getenv("BEDROCK_MODEL_ID")
+
+    if not region:
+        return "Error: AWS_REGION not found in .env"
+    if not model_id:
+        return "Error: BEDROCK_MODEL_ID not found in .env"
 
     try:
-        client = anthropic.Anthropic(api_key=api_key)
-        message = client.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=700,
-            messages=[{"role": "user", "content": prompt}]
+        client = boto3.client("bedrock-runtime", region_name=region)
+
+        body = {
+            "anthropic_version": "bedrock-2023-05-31",
+            "max_tokens": 700,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ]
+        }
+
+        response = client.invoke_model(
+            modelId=model_id,
+            body=json.dumps(body)
         )
-        return message.content[0].text
+
+        result = json.loads(response["body"].read())
+
+        if "content" in result and len(result["content"]) > 0:
+            return result["content"][0]["text"]
+
+        return f"Error: Unexpected Bedrock response format: {result}"
+
     except Exception as e:
-        return f"Error generating response: {str(e)}"
+        return f"Error calling Bedrock: {str(e)}"
 
 
 # ─────────────────────────────────────────────────────────────
@@ -175,11 +197,11 @@ def find_food_in_text(text):
 def detect_meal_logging(query):
     q = query.lower()
     patterns = [
-        r"i had (.+)",
-        r"i ate (.+)",
+        r"for breakfast i had (.+)",
         r"for lunch i had (.+)",
         r"for dinner i had (.+)",
-        r"for breakfast i had (.+)"
+        r"i had (.+)",
+        r"i ate (.+)"
     ]
 
     for pattern in patterns:
@@ -368,9 +390,10 @@ if __name__ == "__main__":
 
     test_queries = [
         "Can I eat nasi lemak?",
-        "I had chicken rice for lunch",
-        "I walked 4000 steps today",
-        "What should I eat at the hawker centre?"
+        "I had chicken rice",
+        "I walked 4000 steps",
+        "What should I eat at the hawker centre?",
+        "Is sushi okay for me?"
     ]
 
     for q in test_queries:
