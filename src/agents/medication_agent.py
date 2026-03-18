@@ -20,8 +20,7 @@ if not region or not model_id:
 
 bedrock = boto3.client("bedrock-runtime", region_name=region)
 
-
-#scheduler functions
+#shedule functions
 
 med_schedule = []
 taken_log = []
@@ -132,17 +131,14 @@ def get_recurrence(freq):
 def create_event(summary, time_str, calendar_id, frequency):
     creds = None
 
-    # Load saved login if exists
     if os.path.exists('token.json'):
         creds = Credentials.from_authorized_user_file('token.json', SCOPES)
 
-    # If no login, ask user to login
     if not creds:
         flow = InstalledAppFlow.from_client_secrets_file(
             'credentials.json', SCOPES)
         creds = flow.run_local_server(port=0)
 
-        # Save login for future use
         with open('token.json', 'w') as token:
             token.write(creds.to_json())
 
