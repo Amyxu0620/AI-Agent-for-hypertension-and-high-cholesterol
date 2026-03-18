@@ -24,13 +24,24 @@ def days_until(date_str):
 
 # ── Call Claude API ────────────────────────────────────────────────────────────
 def ask_claude(prompt):
-    client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
-    message = client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=1000,
-        messages=[{"role": "user", "content": prompt}]
+    client = boto3.client(
+        service_name="bedrock-runtime",
+        region_name="us-east-1"  # change if Amy's region differs
     )
-    return message.content[0].text
+
+    body = boto_json.dumps({
+        "anthropic_version": "bedrock-2023-05-31",
+        "max_tokens": 1000,
+        "messages": [{"role": "user", "content": prompt}]
+    })
+
+    response = client.invoke_model(
+        modelId="anthropic.claude-3-5-sonnet-20241022-v2:0",
+        body=body
+    )
+
+    result = boto_json.loads(response["body"].read())
+    return result["content"][0]["text"]
 
 # ── Generate pre-visit questions using Claude ──────────────────────────────────
 def generate_previsit(patient):
