@@ -24,10 +24,12 @@ def days_until(date_str):
 
 # ── Call Claude via AWS Bedrock ────────────────────────────────────────────────
 def ask_claude(prompt):
-    client = boto3.client(
-        service_name="bedrock-runtime",
-        region_name=os.getenv("AWS_DEFAULT_REGION", "us-east-1")
-    )
+    region = os.getenv("AWS_DEFAULT_REGION", "us-east-1")
+    model_id = os.getenv("BEDROCK_MODEL_ID", "anthropic.claude-3-5-sonnet-20241022-v2:0")
+    if not model_id.startswith("us."):
+        model_id = "us." + model_id
+
+    client = boto3.client("bedrock-runtime", region_name=region)
 
     body = json.dumps({
         "anthropic_version": "bedrock-2023-05-31",
@@ -35,11 +37,7 @@ def ask_claude(prompt):
         "messages": [{"role": "user", "content": prompt}]
     })
 
-    response = client.invoke_model(
-        modelId="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
-        body=body
-    )
-
+    response = client.invoke_model(modelId=model_id, body=body)
     result = json.loads(response["body"].read())
     return result["content"][0]["text"]
 
