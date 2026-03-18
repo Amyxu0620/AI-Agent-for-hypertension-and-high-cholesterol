@@ -55,19 +55,22 @@ def update_patient_json(patient: dict, symptom: str, risk: str):
     Writes symptom into symptoms_today.
     MEDIUM/HIGH also appends a structured alert for Person 2's clinician summary.
     """
+    patient.setdefault("symptoms_today", [])
+    patient.setdefault("alerts", [])
+  
     if symptom not in patient["symptoms_today"]:
         patient["symptoms_today"].append(symptom)
 
     if risk in ("MEDIUM", "HIGH"):
         alert = {
             "type": f"{risk}_SYMPTOM",
+            "message": f"{symptom} detected ({risk})",
             "symptom": symptom,
+            "severity": risk.lower(),
             "timestamp": datetime.now().isoformat(),
             "source": "symptom_agent"
         }
         patient["alerts"].append(alert)
-
-    save_patient(patient)
 
 # ─── Bedrock Helper (matches diet_lifestyle_agent.py pattern) ─────────────────
 
