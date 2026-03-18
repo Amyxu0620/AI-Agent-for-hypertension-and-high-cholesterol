@@ -29,16 +29,23 @@ def get_taken_log(patient):
     return [m["name"] for m in patient.get("medications", []) if m.get("taken")]
 
 def add_medication(patient, med, time, condition, frequency, reminder=True):
-    med_schedule.append({
-        "med": med,
+    patient.setdefault("medications", [])
+    patient["medications"].append({
+        "name": med,
+        "dose": "",
         "time": time,
+        "taken": False,
         "condition": condition,
         "frequency": frequency,
         "reminder": reminder
     })
 
 def mark_taken(patient, med_name):
-    taken_log.append(med_name)
+    patient.setdefault("medications", [])
+    for item in patient["medications"]:
+        if item["name"] == med:
+            item["taken"] = True
+            break
 
 def is_due_today(item):
     today = datetime.now().weekday()
@@ -56,9 +63,11 @@ def check_missed_doses(patient):
     now = datetime.now().strftime("%H:%M")
     missed = []
 
-    for item in med_schedule:
-        if is_due_today(item) and item["time"] < now and item["med"] not in taken_log:
-            missed.append(item["med"])
+    patient.setdefault("medications", [])
+
+    for item in patient["medications"]:
+        if is_due_today(item) and item["time"] < now and item.get("taken", False):
+            missed.append(item["name"])
 
     return missed
 
@@ -66,19 +75,24 @@ def get_reminders(patient):
     now = datetime.now().strftime("%H:%M")
     upcoming = []
 
-    for item in med_schedule:
-        if item["reminder"] and is_due_today(item) and item["time"] >= now:
-            upcoming.append(f"{item['med']} at {item['time']}")
+    patient.setdefault("medications", [])
+
+    for item in patient["medications"]:
+        if item.get["reminder", True] and is_due_today(item) and item["time"] >= now:
+            upcoming.append(f"{item['name']} at {item['time']}")
 
     return upcoming
 
 def get_schedule(patient):
-    return med_schedule
+    patient.setdefault("medications", [])
+    return patient["medications"]
 
 def remove_medication(patient, med_name):
-    global med_schedule
-    med_schedule = [m for m in med_schedule if m["med"] != med_name]
-
+    patient.setdefault("medications", [])
+    patient["medications"] = [
+        m for m in patient["medications"] if m["name"] != med_name
+    ]
+    
 #AI Explainer
 
 def explain_medication(medication: str, condition: str) -> str:
