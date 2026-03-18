@@ -63,6 +63,9 @@ Keep the language simple and warm. The patient is an elderly Singaporean.
 """
     return ask_claude(prompt)
 
+def run_previsit(patient: dict) -> str:
+    return generate_previsit(patient)
+    
 # ── Generate clinician summary using Claude ────────────────────────────────────
 def generate_clinician_summary(patient):
     missed_meds = [m["name"] for m in patient["medications"] if not m["taken"]]
@@ -141,6 +144,11 @@ def generate_pdf(patient, summary_text):
     doc.build(content)
     return filename
 
+def run_clinician_summary(patient: dict) -> tuple[str, str]:
+    summary = generate_clinician_summary(patient)
+    pdf_path = generate_pdf(patient, summary)
+    return summary, pdf_path
+    
 # ── Streamlit UI ───────────────────────────────────────────────────────────────
 def main():
     st.set_page_config(page_title="Appointment & Clinician Agent", page_icon="🏥")
