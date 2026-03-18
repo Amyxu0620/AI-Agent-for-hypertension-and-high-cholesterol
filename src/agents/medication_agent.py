@@ -22,10 +22,13 @@ bedrock = boto3.client("bedrock-runtime", region_name=region)
 
 #shedule functions
 
-med_schedule = []
-taken_log = []
+def get_med_schedule(patient):
+    return patient.setdefault("medications", [])
 
-def add_medication(med, time, condition, frequency, reminder=True):
+def get_taken_log(patient):
+    return [m["name"] for m in patient.get("medications", []) if m.get("taken")]
+
+def add_medication(patient, med, time, condition, frequency, reminder=True):
     med_schedule.append({
         "med": med,
         "time": time,
@@ -34,8 +37,8 @@ def add_medication(med, time, condition, frequency, reminder=True):
         "reminder": reminder
     })
 
-def mark_taken(med):
-    taken_log.append(med)
+def mark_taken(patient, med_name):
+    taken_log.append(med_name)
 
 def is_due_today(item):
     today = datetime.now().weekday()
@@ -49,7 +52,7 @@ def is_due_today(item):
 
     return True
 
-def check_missed_doses():
+def check_missed_doses(patient):
     now = datetime.now().strftime("%H:%M")
     missed = []
 
@@ -59,7 +62,7 @@ def check_missed_doses():
 
     return missed
 
-def get_reminders():
+def get_reminders(patient):
     now = datetime.now().strftime("%H:%M")
     upcoming = []
 
@@ -69,10 +72,10 @@ def get_reminders():
 
     return upcoming
 
-def get_schedule():
+def get_schedule(patient):
     return med_schedule
 
-def remove_medication(med_name):
+def remove_medication(patient, med_name):
     global med_schedule
     med_schedule = [m for m in med_schedule if m["med"] != med_name]
 
