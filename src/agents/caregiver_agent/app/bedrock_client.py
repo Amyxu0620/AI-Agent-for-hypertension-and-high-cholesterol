@@ -4,7 +4,6 @@ from app.config import AWS_REGION, BEDROCK_MODEL_ID
 
 bedrock = boto3.client("bedrock-runtime", region_name=AWS_REGION)
 
-
 def generate_caregiver_summary(payload: dict) -> str:
     prompt = f"""
 You are a caregiver support assistant.
