@@ -1,0 +1,15 @@
+{
+  "patient": "Mr Tan",
+  "conditions": ["hypertension", "hyperlipidaemia"],
+  "medications": [
+    {"name": "Amlodipine", "dose": "5mg", "time": "08:00", "taken": false},
+    {"name": "Simvastatin", "dose": "20mg", "time": "21:00", "taken": true}
+  ],
+  "appointments": [
+    {"type": "Cardiology", "date": "2026-03-21", "doctor": "Dr Lim"}
+  ],
+  "symptoms_today": ["dizziness"],
+  "meals_today": ["nasi lemak", "kopi"],
+  "steps_today": 2000,
+  "alerts": []
+}
