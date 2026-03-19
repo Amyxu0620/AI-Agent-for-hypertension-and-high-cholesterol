@@ -70,7 +70,7 @@ def get_reminders(patient):
     patient.setdefault("medications", [])
 
     for item in patient["medications"]:
-        if item.get["reminder", True] and is_due_today(item) and item["time"] >= now:
+        if item.get("reminder", True) and is_due_today(item) and item["time"] >= now:
             upcoming.append(f"{item['name']} at {item['time']}")
 
     return upcoming
@@ -129,7 +129,7 @@ def create_event(summary, time_str, calendar_id, frequency):
 
     service = build('calendar', 'v3', credentials=creds)
 
-   now = datetime.now()
+    now = datetime.now()
     hour, minute = map(int, time_str.split(":"))
 
     event_time = now.replace(hour=hour, minute=minute, second=0)
