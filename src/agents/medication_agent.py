@@ -12,14 +12,6 @@ from googleapiclient.discovery import build
 
 load_dotenv()
 
-region = os.getenv("AWS_REGION")
-model_id = os.getenv("BEDROCK_MODEL_ID_INFERENCE")
-
-if not region or not model_id:
-    raise ValueError("Missing required env vars: AWS_REGION and BEDROCK_MODEL_ID_INFERENCE must be set.")
-
-bedrock = boto3.client("bedrock-runtime", region_name=region)
-
 #shedule functions
 
 def get_med_schedule(patient):
@@ -96,42 +88,18 @@ def remove_medication(patient, med_name):
 #AI Explainer
 
 def explain_medication(medication: str, condition: str) -> str:
+    import anthropic
     if not medication or not condition:
         raise ValueError("Both medication and condition must be non-empty strings.")
-
     prompt = f"Explain what {medication} does for a patient with {condition}. Use simple, warm, and reassuring words that an elderly person would easily understand."
-
-    body = json.dumps({
-        "anthropic_version": "bedrock-2023-05-31",
-        "max_tokens": 512,
-        "system": "You explain medications in simple, friendly language for elderly patients. Avoid medical jargon. Be warm, clear, and reassuring.",
-        "messages": [
-            {"role": "user", "content": prompt}
-        ]
-    })
-
-    try:
-        response = bedrock.invoke_model(
-            modelId=model_id,
-            contentType="application/json",
-            accept="application/json",
-            body=body
-        )
-        result = json.loads(response["body"].read())
-
-        if not result.get("content") or not result["content"][0].get("text"):
-            raise ValueError("Unexpected response structure from Bedrock.")
-
-        return result["content"][0]["text"]
-
-    except ClientError as e:
-        print(f"[ERROR] Bedrock API error: {e.response['Error']['Message']}")
-        raise RuntimeError(f"Bedrock API error: {e.response['Error']['Message']}") from e
-
-    except (KeyError, IndexError) as e:
-        print(f"[ERROR] Unexpected response structure: {e}")
-        raise RuntimeError(f"Unexpected response structure: {e}") from e
-
+    client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+    message = client.messages.create(
+        model="claude-sonnet-4-20250514",
+        max_tokens=512,
+        system="You explain medications in simple, friendly language for elderly patients. Avoid medical jargon. Be warm, clear, and reassuring.",
+        messages=[{"role": "user", "content": prompt}]
+    )
+    return message.content[0].text
 # calendar integration
 
 SCOPES = ['https://www.googleapis.com/auth/calendar']
