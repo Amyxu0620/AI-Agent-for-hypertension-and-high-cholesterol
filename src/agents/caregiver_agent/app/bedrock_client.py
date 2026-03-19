@@ -1,6 +1,8 @@
 import json
-import anthropic
-import os
+import boto3
+from app.config import AWS_REGION, BEDROCK_MODEL_ID
+
+bedrock = boto3.client("bedrock-runtime", region_name=AWS_REGION)
 
 def generate_caregiver_summary(payload: dict) -> str:
     prompt = f"""
@@ -16,10 +18,13 @@ Rules:
 Patient data:
 {json.dumps(payload, indent=2)}
 """
-    client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
-    message = client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=1000,
-        messages=[{"role": "user", "content": prompt}]
+    response = bedrock.converse(
+        modelId=BEDROCK_MODEL_ID,
+        messages=[
+            {
+                "role": "user",
+                "content": [{"text": prompt}]
+            }
+        ]
     )
-    return message.content[0].text
+    return response["output"]["message"]["content"][0]["text"]
